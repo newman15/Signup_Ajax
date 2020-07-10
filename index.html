@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="description" content="">
+        <title>Sign Up Page</title>
+        <link href="css/styles.css" rel="stylesheet" type="text/css"/>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    </head>
+
+    <body>
+
+        <main>
+            <br/><br/>
+            <div class="container">
+                <h1>Sign Up</h1>
+
+                <form id="signupForm" method="POST" action="welcome.html">
+                        <label for="first-name">First Name:  </label><input type="text" name="fname"><br/><br/> 
+                        <label for="last-name">Last Name:  </label><input type="text" name="lname"><br/><br/>
+                        <label for="gender">Gender:  </label><input type="radio" name="gender" value="m">Male
+                            <input type="radio" name="gender" value="f">Female<br/><br/>
+    
+                        <label for="zip-code">Zip Code:  </label><input type="text" name="zip" id="zip"><br/><br/>
+                        <label for="city">City:  </label><span id="city"></span><br/><br/>
+                        <label for="latitude">Latitude:  </label><span id="latitude"></span><br/><br/>
+                        <label for="longitude">Longitude:  </label><span id="longitude"></span><br/><br/>
+                        <label for="state">State:  </label><select id="state" name="state"></select><br/><br/>
+    
+                        <label for="county">Select a county:  </label><select id="county"></select><br/><br/>
+                        <label for="username">Desired Username:  </label><input type="text" id="username" name="username"><br/>
+                            <span id="usernameError"></span><br/>
+                        <label for="password">Password:  </label><input type="text" id="password" name="password"><br/>
+                            <span id="passwordError"></span><br/>
+                        <label for="password-again">Password Again:  </label><input type="text" id="passwordAgain"><br/>
+                            <span id="passwordAgainError"></span><br/>
+    
+                        <input type="submit" value="Sign Up!">
+                </form>
+            </div><br/><br/>
+
+        </main>
+
+        <script>
+
+            window.onload = loadStates();
+            var usernameAvailable = false;
+
+            // Displaying City From API
+            $("#zip").on("change", function(){
+                // alert($("#zip").val());
+                $.ajax({
+                    method: "GET",
+                    url: "https://cst336.herokuapp.com/projects/api/cityInfoAPI.php",
+                    dataType: "json",
+                    data: {"zip" : $("#zip").val() },
+                    success: function(result, status){
+                        // alert(result.city);
+                        $("#city").html(result.city);
+                        $("#latitude").html(result.latitude);
+                        $("#longitude").html(result.longitude);
+                    }
+                });
+            });
+
+            $("#state").on("change", function(){
+
+                $.ajax({
+
+                    method: "GET",
+                    url: "https://cst336.herokuapp.com/projects/api/countyListAPI.php",
+                    dataType: "json",
+                    data: {"state" : $("#state").val()},
+                    success: function(result, status){
+                        // alert(result[0].county);
+                        $("#county").html("<option>Select One</option>");
+
+                        for(let i = 0; i < result.length; i++){
+                            $("#county").append("<option>" + result[i].county + "</option>");
+                        }
+                    }
+
+                });
+
+            });
+
+            $("#username").change(function(){
+
+                // alert($("#username").val());
+                $.ajax({
+
+                    method: "GET",
+                    url: "https://cst336.herokuapp.com/projects/api/usernamesAPI.php",
+                    dataType: "json",
+                    data: {"username" : $("#username").val()},
+                    success: function(result, status){
+                        if(result.available){
+                            $("#usernameError").html("Username is available!");
+                            $("#usernameError").css("color", "green");
+                            usernameAvailable = true;
+                        }
+                        else{
+                            $("#usernameError").html("Username is unavailable");
+                            $("#usernameError").css("color", "red");
+                            usernameAvailable = false;
+                        }
+                    }
+
+                });
+
+            });
+
+            $("#password").on("change", function(){
+                if($("#password").val().length < 6){
+                    $("#passwordError").html("Passord must be at least 6 characters");
+                    $("#passwordError").css("color", "red");
+                }
+            })
+
+            $("#signupForm").on("submit", function(e){
+
+                if(!isFormValid()){
+                    e.preventDefault();
+                }
+
+            });
+
+            function isFormValid(){
+                isValid = true;
+                if(!usernameAvailable){
+                    isValid = false;
+                }
+
+                if($("#username").val().length == 0){
+                    isValid = false;
+                    $("#usernameError").html("Username is required");
+                    $("#usernameError").css("color", "red");
+                }
+
+                if($("#password").val() != $("#passwordAgain").val()){
+                    $("#passwordAgainError").html("Password Mismatch!");
+                    $("#passwordAgainError").css("color", "red");
+                    isValid = false;
+                }
+
+                if($("#password").val().length < 6){
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            function loadStates(){
+                $.ajax({
+                method: "GET",
+                url: "https://cst336.herokuapp.com/projects/api/state_abbrAPI.php",
+                dataType: "json",
+                data: { "state": $("#state").val() },
+                success: function (result, status) {
+                    $("#state").html("<option> Select One </Option>");
+                    result.forEach(function (i) {
+                        $("#state").append("<option value=" + i.usps + ">" + i.state + "</option>");
+                    });
+                }
+            });
+            }
+
+        </script>
+
+        <!-- Bootstrap Dox Requires Code Placement Here -->
+        <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script> -->
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    </body>
+</html>

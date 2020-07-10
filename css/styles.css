@@ -1,0 +1,23 @@
+body {
+    background-color: blanchedalmond;
+}
+
+main {
+    margin-left: 30%;
+}
+
+#signupForm {
+    background-color: azure;
+    box-sizing: content-box;  
+    box-shadow: 5px 10px;
+    width: 350px;
+    padding: 30px;  
+    border: 10px solid black;
+    font-size: medium;
+    font-weight: bold;
+    font-style: oblique;
+}
+
+label{
+    padding: 0.5em;
+}
