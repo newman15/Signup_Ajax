@@ -26,6 +26,7 @@
                             <input type="radio" name="gender" value="f">Female<br/><br/>
     
                         <label for="zip-code">Zip Code:  </label><input type="text" name="zip" id="zip"><br/><br/>
+                            <span id="zipError"></span><br/>
                         <label for="city">City:  </label><span id="city"></span><br/><br/>
                         <label for="latitude">Latitude:  </label><span id="latitude"></span><br/><br/>
                         <label for="longitude">Longitude:  </label><span id="longitude"></span><br/><br/>
@@ -63,6 +64,15 @@
                         $("#city").html(result.city);
                         $("#latitude").html(result.latitude);
                         $("#longitude").html(result.longitude);
+                        
+                        if(result == false){
+                            $("#zipError").html("Zip Code Not Found");
+                            $("#zipError").css("color", "red");
+                        }
+                    },
+                    error: function(){ // Just incase there is an error with the API
+                        $("#zipError").html("Zip Code Not Found");
+                        $("#zipError").css("color", "red");
                     }
                 });
             });
